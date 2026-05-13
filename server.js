@@ -212,10 +212,10 @@ app.post(
 
       const { name, email, message } = req.body;
 
-     await transporter.sendMail({
+await transporter.sendMail({
   from: "queryadon@gmail.com",
   to: "admin@morjobs.sg",
-  subject: "New Contact Form Submission",
+  subject: "New Contact Message",
 
   html: `
     <h2>New Contact Message</h2>
