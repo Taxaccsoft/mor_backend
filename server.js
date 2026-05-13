@@ -7,8 +7,25 @@ const fs = require("fs");
 require("dotenv").config();
 
 const app = express();
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://morjobs.sg",
+      "https://www.morjobs.sg",
+    ],
+    methods: ["GET", "POST"],
+  })
+);
 app.use(express.json());
 
 
