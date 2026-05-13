@@ -165,8 +165,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Root Route
-app.get("/", (req, res) => {
-  res.send("Backend Running Successfully");
+app.get("/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "API Working",
+  });
 });
 
 // Create uploads folder
@@ -194,9 +197,9 @@ const transporter = nodemailer.createTransport({
   secure: true,
 
   auth: {
-    user: queryadon@gmail.com,
-    pass: ikbr olvc kdlf tyau,
-  },
+  user: process.env.EMAIL_USER,
+  pass: process.env.EMAIL_PASS,
+},
 });
 
 // Contact API
@@ -209,19 +212,19 @@ app.post(
 
       const { name, email, message } = req.body;
 
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: process.env.RECEIVER_EMAIL,
-        subject: "New Contact Form Submission",
+     await transporter.sendMail({
+  from: "queryadon@gmail.com",
+  to: "admin@morjobs.sg",
+  subject: "New Contact Form Submission",
 
-        html: `
-          <h2>New Contact Message</h2>
+  html: `
+    <h2>New Contact Message</h2>
 
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Message:</strong> ${message}</p>
-        `,
-      });
+    <p><strong>Name:</strong> ${name}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Message:</strong> ${message}</p>
+  `,
+});
 
       res.status(200).json({
         success: true,
