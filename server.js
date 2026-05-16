@@ -8,7 +8,10 @@ require("dotenv").config();
 const app = express();
 
 // ✅ Middleware
-app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: ["https://morjobs.sg", "http://localhost:3000"],
+  methods: ["GET", "POST"],
+}));
 app.use(express.json());
 
 // ✅ Ensure uploads folder exists
@@ -35,13 +38,10 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // VERY IMPORTANT (false for 587)
+  secure: false, // required for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
   },
 });
 
