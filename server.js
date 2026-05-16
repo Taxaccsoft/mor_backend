@@ -73,7 +73,7 @@ app.post("/api/contact", upload.single("file"), async (req, res) => {
      from: `"${name}" <${process.env.EMAIL_USER}>`,  // sender = app mail
       to: process.env.RECEIVER_EMAIL,                       // receiver
       replyTo: email,                                // reply goes to user
-      subject: subject || "New Contact Message",
+     subject: "New Contact Form Submission",
       html: `
         <h2>New Contact Message</h2>
         <p><strong>Name:</strong> ${name}</p>
