@@ -36,12 +36,10 @@ const upload = multer({
 
 // ✅ Nodemailer transporter (Gmail App Password REQUIRED)
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // required for 587
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: "queryadon@gmail.com",
+    pass: "ikbr olvc kdlf tyau",
   },
 });
 
