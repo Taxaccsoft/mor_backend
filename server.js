@@ -1,11 +1,15 @@
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
 const multer = require("multer");
 const fs = require("fs");
 require("dotenv").config();
 
+const sgMail = require("@sendgrid/mail");
+
 const app = express();
+
+// ✅ SendGrid setup
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // ✅ Middleware
 app.use(cors({
@@ -19,7 +23,7 @@ if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
 }
 
-// ✅ Multer config (with file size limit)
+// ✅ Multer config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -31,86 +35,55 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-});
-
-// ✅ Nodemailer transporter (Gmail App Password REQUIRED)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "queryadon@gmail.com",
-    pass: "ikbr olvc kdlf tyau",
-  },
-});
-
-// ✅ Verify transporter (helps debugging)
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("Transporter Error:", error);
-  } else {
-    console.log("Server is ready to send emails");
-  }
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 // ✅ Contact API
 app.post("/api/contact", upload.single("file"), async (req, res) => {
   try {
-    console.log("Incoming request:", req.body);
-    console.log("File:", req.file);
-
     const { name, email, message } = req.body;
 
-    // ❌ Basic validation
-    if (!name || !email || !message) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
-
-    // ✅ Mail options
-    const mailOptions = {
-     from: `"${name}" <${process.env.EMAIL_USER}>`,  // sender = app mail
-      to: process.env.RECEIVER_EMAIL,                       // receiver
-      replyTo: email,                                // reply goes to user
-     subject: "New Contact Form Submission",
+    const msg = {
+      to: "queryadon@gmail.com",        // your email
+      from: "queryadon@gmail.com",      // MUST be verified in SendGrid
+      replyTo: email,
+      subject: "New Contact Form Submission",
       html: `
         <h2>New Contact Message</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong></p>
         <p>${message}</p>
       `,
       attachments: req.file
         ? [
             {
+              content: fs.readFileSync(req.file.path).toString("base64"),
               filename: req.file.originalname,
-              path: req.file.path,
+              type: req.file.mimetype,
+              disposition: "attachment",
             },
           ]
         : [],
     };
 
-    // ✅ Send mail
-    await transporter.sendMail(mailOptions);
-
-    console.log("Mail sent successfully");
+    await sgMail.send(msg);
 
     res.status(200).json({
       success: true,
       message: "Mail sent successfully",
     });
+
   } catch (err) {
-    console.error("MAIL ERROR:", err);
+    console.error("SENDGRID ERROR:", err);
 
     res.status(500).json({
       success: false,
-      message: err.message || "Error sending mail",
+      message: err.message,
     });
   }
 });
 
-// ✅ Root route (to check server is alive)
+// ✅ Root route
 app.get("/", (req, res) => {
   res.send("Backend is running...");
 });
