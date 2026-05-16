@@ -44,6 +44,7 @@ const transporter = nodemailer.createTransport({
 transporter.verify((error) => {
   if (error) {
     console.error("Mail transporter error:", error.message);
+    console.error("Full error:", JSON.stringify(error));
   } else {
     console.log("Mail transporter ready ✅");
   }
